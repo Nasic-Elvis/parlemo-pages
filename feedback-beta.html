@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feedback beta — Parlèmo</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 32px 18px 80px;
+    background: #FDF6EC;
+    color: #1A1208;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 6px; color: #E8631A; }
+  .subtitle { color: #7A6A55; font-size: 14.5px; margin-bottom: 28px; }
+  .card {
+    background: #FFF8F0;
+    border: 1px solid #E8DDD0;
+    border-radius: 14px;
+    padding: 20px 20px 22px;
+    margin-bottom: 18px;
+  }
+  .card h2 { font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px; color: #7A6A55; margin: 0 0 16px; }
+  .q { margin-bottom: 18px; }
+  .q:last-child { margin-bottom: 0; }
+  .q label.qlabel { display: block; font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .hint { font-size: 12.5px; color: #7A6A55; margin: -4px 0 8px; }
+  textarea, select {
+    width: 100%;
+    font-size: 15px;
+    font-family: inherit;
+    padding: 10px 12px;
+    border: 1px solid #E8DDD0;
+    border-radius: 10px;
+    background: #FFFFFF;
+    color: #1A1208;
+    resize: vertical;
+  }
+  textarea { min-height: 64px; }
+  .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+  .choice {
+    border: 1px solid #E8DDD0;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    background: #FFFFFF;
+    user-select: none;
+  }
+  .choice input { display: none; }
+  .choice.selected { background: #E8631A; border-color: #E8631A; color: #FFFFFF; }
+  .scale { display: flex; gap: 6px; }
+  .scale .choice { flex: 1; text-align: center; padding: 10px 0; }
+  .nps { display: flex; flex-wrap: wrap; gap: 5px; }
+  .nps .choice { flex: 1 1 8%; text-align: center; padding: 8px 0; min-width: 30px; }
+  button[type="submit"] {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #FFFFFF;
+    background: #E8631A;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+  button[type="submit"]:disabled { opacity: 0.6; }
+  .optional { font-weight: 400; color: #7A6A55; font-size: 13px; }
+  #done { display: none; text-align: center; padding: 60px 20px; }
+  #done h1 { margin-bottom: 12px; }
+  #error { display: none; color: #CC2222; background: #FFF0F0; border: 1px solid #FFB3B3; border-radius: 10px; padding: 12px 14px; margin-bottom: 18px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="formWrap">
+  <h1>Come è andata con Parlèmo?</h1>
+  <p class="subtitle">Il modulo è completamente anonimo — non chiediamo email né nome. Ci vogliono circa 5 minuti. Grazie per il tempo che ci dedichi!</p>
+
+  <div id="error"></div>
+
+  <form id="f">
+    <div class="card">
+      <h2>Su di te</h2>
+      <div class="q">
+        <label class="qlabel">Con che frequenza hai usato l'app durante il test?</label>
+        <div class="choices" data-field="frequenza_uso" data-type="single">
+          <label class="choice"><input type="radio" name="frequenza_uso" value="Tutti i giorni">Tutti i giorni</label>
+          <label class="choice"><input type="radio" name="frequenza_uso" value="Quasi tutti i giorni">Quasi tutti i giorni</label>
+          <label class="choice"><input type="radio" name="frequenza_uso" value="2-3 volte a settimana">2-3 volte/sett.</label>
+          <label class="choice"><input type="radio" name="frequenza_uso" value="Raramente">Raramente</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="qlabel">Il tuo dialetto/regione di riferimento <span class="optional">(facoltativo)</span></label>
+        <select name="dialetto_regione">
+          <option value="">— Seleziona —</option>
+          <option>Valle d'Aosta</option><option>Piemonte</option><option>Liguria</option>
+          <option>Lombardia</option><option>Trentino-Alto Adige</option><option>Veneto</option>
+          <option>Friuli-Venezia Giulia</option><option>Emilia-Romagna</option><option>Toscana</option>
+          <option>Umbria</option><option>Marche</option><option>Lazio</option><option>Abruzzo</option>
+          <option>Molise</option><option>Campania</option><option>Puglia</option><option>Basilicata</option>
+          <option>Calabria</option><option>Sicilia</option><option>Sardegna</option>
+          <option>Nessuno in particolare</option>
+        </select>
+      </div>
+      <div class="q">
+        <label class="qlabel">Fascia d'età</label>
+        <div class="choices" data-field="fascia_eta" data-type="single">
+          <label class="choice"><input type="radio" name="fascia_eta" value="<18"><18</label>
+          <label class="choice"><input type="radio" name="fascia_eta" value="18-25">18-25</label>
+          <label class="choice"><input type="radio" name="fascia_eta" value="26-35">26-35</label>
+          <label class="choice"><input type="radio" name="fascia_eta" value="36-50">36-50</label>
+          <label class="choice"><input type="radio" name="fascia_eta" value="50+">50+</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Prima impressione</h2>
+      <div class="q">
+        <label class="qlabel">Quanto ti è piaciuta l'app nel complesso? *</label>
+        <div class="scale" data-field="valutazione_generale" data-type="single-number">
+          <label class="choice"><input type="radio" name="valutazione_generale" value="1">1</label>
+          <label class="choice"><input type="radio" name="valutazione_generale" value="2">2</label>
+          <label class="choice"><input type="radio" name="valutazione_generale" value="3">3</label>
+          <label class="choice"><input type="radio" name="valutazione_generale" value="4">4</label>
+          <label class="choice"><input type="radio" name="valutazione_generale" value="5">5</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="qlabel">Cosa ti ha colpito di più? <span class="optional">(facoltativo)</span></label>
+        <textarea name="prima_impressione"></textarea>
+      </div>
+      <div class="q">
+        <label class="qlabel">Qualcosa che non ti è stato subito chiaro? <span class="optional">(facoltativo)</span></label>
+        <textarea name="cosa_confuso"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Funzionalità</h2>
+      <div class="q">
+        <label class="qlabel">Quali funzionalità hai usato di più? <span class="optional">(scegli quante vuoi)</span></label>
+        <div class="choices" data-field="funzionalita_usate" data-type="multi">
+          <label class="choice"><input type="checkbox" value="Parola del giorno">Parola del giorno</label>
+          <label class="choice"><input type="checkbox" value="Dialetto personalizzato">Dialetto personalizzato</label>
+          <label class="choice"><input type="checkbox" value="Archivio">Archivio</label>
+          <label class="choice"><input type="checkbox" value="Preferiti">Preferiti</label>
+          <label class="choice"><input type="checkbox" value="Giochi">Giochi</label>
+          <label class="choice"><input type="checkbox" value="Chiacchierino">Chiacchierino</label>
+          <label class="choice"><input type="checkbox" value="Classifica/punti">Classifica/punti</label>
+          <label class="choice"><input type="checkbox" value="Segnalazione parole dialettali">Segnalazione parole</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="qlabel">Quale gioco ti è piaciuto di più? <span class="optional">(facoltativo)</span></label>
+        <select name="gioco_preferito">
+          <option value="">— Seleziona —</option>
+          <option>Indovina il Significato</option>
+          <option>Indovina la Regione</option>
+          <option>Indovina la Parola</option>
+          <option>Indovina il Dialetto</option>
+          <option>Impiccato</option>
+          <option>Sfida a Tempo</option>
+          <option>Sfida del Giorno</option>
+          <option>Nessuno / non ho giocato</option>
+        </select>
+      </div>
+      <div class="q">
+        <label class="qlabel">Punti/streak/missioni ti hanno invogliato a tornare sull'app? *</label>
+        <div class="scale" data-field="punti_streak_valutazione" data-type="single-number">
+          <label class="choice"><input type="radio" name="punti_streak_valutazione" value="1">1</label>
+          <label class="choice"><input type="radio" name="punti_streak_valutazione" value="2">2</label>
+          <label class="choice"><input type="radio" name="punti_streak_valutazione" value="3">3</label>
+          <label class="choice"><input type="radio" name="punti_streak_valutazione" value="4">4</label>
+          <label class="choice"><input type="radio" name="punti_streak_valutazione" value="5">5</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="qlabel">Quanto è stata utile/accurata la personalizzazione del dialetto? *</label>
+        <div class="scale" data-field="dialetto_utilita" data-type="single-number">
+          <label class="choice"><input type="radio" name="dialetto_utilita" value="1">1</label>
+          <label class="choice"><input type="radio" name="dialetto_utilita" value="2">2</label>
+          <label class="choice"><input type="radio" name="dialetto_utilita" value="3">3</label>
+          <label class="choice"><input type="radio" name="dialetto_utilita" value="4">4</label>
+          <label class="choice"><input type="radio" name="dialetto_utilita" value="5">5</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="qlabel">Dettagli sul dialetto <span class="optional">(facoltativo)</span></label>
+        <textarea name="dialetto_dettagli" placeholder="Es. forme che non ti convincevano, regioni poco coperte..."></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Contenuti</h2>
+      <div class="q">
+        <label class="qlabel">Hai notato errori nei significati, etimologie o forme dialettali?</label>
+        <div class="choices" data-field="errori_contenuti" data-type="single-bool">
+          <label class="choice"><input type="radio" name="errori_contenuti" value="true">Sì</label>
+          <label class="choice"><input type="radio" name="errori_contenuti" value="false">No</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="qlabel">Se sì, quale parola e cosa non ti convinceva? <span class="optional">(facoltativo)</span></label>
+        <textarea name="errori_contenuti_dettagli"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Bug e problemi tecnici</h2>
+      <div class="q">
+        <label class="qlabel">Hai trovato bug che NON mi hai già segnalato?</label>
+        <div class="choices" data-field="bug_non_segnalati" data-type="single-bool">
+          <label class="choice"><input type="radio" name="bug_non_segnalati" value="true">Sì</label>
+          <label class="choice"><input type="radio" name="bug_non_segnalati" value="false">No</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="qlabel">Se sì, descrivilo <span class="optional">(facoltativo)</span></label>
+        <textarea name="bug_dettagli"></textarea>
+      </div>
+      <div class="q">
+        <label class="qlabel">L'app si è mai bloccata, chiusa da sola, o ha avuto rallentamenti evidenti?</label>
+        <div class="choices" data-field="crash_rallentamenti" data-type="single-bool">
+          <label class="choice"><input type="radio" name="crash_rallentamenti" value="true">Sì</label>
+          <label class="choice"><input type="radio" name="crash_rallentamenti" value="false">No</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="qlabel">Dettagli <span class="optional">(facoltativo)</span></label>
+        <textarea name="crash_dettagli"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Bilancio finale</h2>
+      <div class="q">
+        <label class="qlabel">Da 0 a 10, quanto consiglieresti Parlèmo a un amico? *</label>
+        <div class="nps" data-field="nps" data-type="single-number">
+          ${Array.from({ length: 11 }, (_, i) => `<label class="choice"><input type="radio" name="nps" value="${i}">${i}</label>`).join("")}
+        </div>
+      </div>
+      <div class="q">
+        <label class="qlabel">Il pregio più grande dell'app <span class="optional">(facoltativo)</span></label>
+        <textarea name="pregio_piu_grande"></textarea>
+      </div>
+      <div class="q">
+        <label class="qlabel">Il difetto più grande / cosa cambieresti per primo <span class="optional">(facoltativo)</span></label>
+        <textarea name="difetto_piu_grande"></textarea>
+      </div>
+      <div class="q">
+        <label class="qlabel">C'era qualcosa che ti aspettavi e non hai trovato? <span class="optional">(facoltativo)</span></label>
+        <textarea name="aspettativa_mancata"></textarea>
+      </div>
+      <div class="q">
+        <label class="qlabel">Altri commenti o suggerimenti liberi <span class="optional">(facoltativo)</span></label>
+        <textarea name="commenti_liberi"></textarea>
+      </div>
+    </div>
+
+    <button type="submit" id="submitBtn">Invia feedback</button>
+  </form>
+</div>
+
+<div id="done">
+  <h1>Grazie mille! 🖤</h1>
+  <p>Il tuo feedback è stato inviato in forma anonima. Mi aiuta davvero tantissimo a migliorare Parlèmo.</p>
+</div>
+
+<script>
+  // Gestisce l'evidenziazione visiva di scelte singole/multiple stile "chip"
+  document.querySelectorAll('[data-field]').forEach(function (group) {
+    var type = group.dataset.type;
+    group.querySelectorAll('.choice').forEach(function (choice) {
+      choice.addEventListener('click', function () {
+        var input = choice.querySelector('input');
+        if (type === 'multi') {
+          input.checked = !input.checked;
+          choice.classList.toggle('selected', input.checked);
+        } else {
+          group.querySelectorAll('.choice').forEach(function (c) { c.classList.remove('selected'); });
+          input.checked = true;
+          choice.classList.add('selected');
+        }
+      });
+    });
+  });
+
+  document.getElementById('f').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var errBox = document.getElementById('error');
+    errBox.style.display = 'none';
+
+    function radioVal(name) {
+      var el = document.querySelector('input[name="' + name + '"]:checked');
+      return el ? el.value : null;
+    }
+    function checkedList(fieldName) {
+      var group = document.querySelector('[data-field="' + fieldName + '"]');
+      return Array.from(group.querySelectorAll('input:checked')).map(function (i) { return i.value; });
+    }
+    function textVal(name) {
+      var el = document.querySelector('[name="' + name + '"]');
+      return el ? el.value : null;
+    }
+    function toBool(v) { return v === null ? null : v === 'true'; }
+    function toNum(v) { return v === null ? null : Number(v); }
+
+    var valutazione = radioVal('valutazione_generale');
+    var punti = radioVal('punti_streak_valutazione');
+    var dialettoUtilita = radioVal('dialetto_utilita');
+    var nps = radioVal('nps');
+
+    if (!valutazione || !punti || !dialettoUtilita || nps === null) {
+      errBox.textContent = 'Rispondi alle domande con l\\'asterisco (*) prima di inviare.';
+      errBox.style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    var payload = {
+      frequenza_uso: radioVal('frequenza_uso'),
+      dialetto_regione: textVal('dialetto_regione') || null,
+      fascia_eta: radioVal('fascia_eta'),
+      valutazione_generale: toNum(valutazione),
+      prima_impressione: textVal('prima_impressione'),
+      cosa_confuso: textVal('cosa_confuso'),
+      funzionalita_usate: checkedList('funzionalita_usate'),
+      gioco_preferito: textVal('gioco_preferito') || null,
+      punti_streak_valutazione: toNum(punti),
+      dialetto_utilita: toNum(dialettoUtilita),
+      dialetto_dettagli: textVal('dialetto_dettagli'),
+      errori_contenuti: toBool(radioVal('errori_contenuti')),
+      errori_contenuti_dettagli: textVal('errori_contenuti_dettagli'),
+      bug_non_segnalati: toBool(radioVal('bug_non_segnalati')),
+      bug_dettagli: textVal('bug_dettagli'),
+      crash_rallentamenti: toBool(radioVal('crash_rallentamenti')),
+      crash_dettagli: textVal('crash_dettagli'),
+      nps: toNum(nps),
+      pregio_piu_grande: textVal('pregio_piu_grande'),
+      difetto_piu_grande: textVal('difetto_piu_grande'),
+      aspettativa_mancata: textVal('aspettativa_mancata'),
+      commenti_liberi: textVal('commenti_liberi'),
+    };
+
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Invio in corso...';
+
+    try {
+      var res = await fetch('https://vlamcmxiyfbmpjeazwfs.supabase.co/functions/v1/feedback-beta', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('bad status');
+      document.getElementById('formWrap').style.display = 'none';
+      document.getElementById('done').style.display = 'block';
+      window.scrollTo({ top: 0 });
+    } catch (err) {
+      errBox.textContent = 'Invio non riuscito. Controlla la connessione e riprova.';
+      errBox.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Invia feedback';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+</script>
+</body>
+</html>
